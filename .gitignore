@@ -20,3 +20,4 @@ DerivedData
 
 node_modules/
 components/
+.sass-cache/
