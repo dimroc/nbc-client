@@ -14,6 +14,23 @@ module.exports = function(grunt) {
       }
     },
 
+    concat: {
+      options: {
+        stripBanners: true,
+        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+          '<%= grunt.template.today("yyyy-mm-dd") %> */'
+      },
+      dist: {
+        src:
+          [
+            'components/underscore/underscore.js',
+            'components/underscore.string/dist/underscore.string.min.js',
+            'components/jquery-mobile/underscore.string.js'
+        ],
+        dest: 'www/js/vendor.js'
+      }
+    },
+
     coffee: {
       compileWithMaps: {
         options: {
@@ -39,7 +56,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-coffee');
-
+  grunt.loadNpmTasks('grunt-contrib-concat');
 
   // Default task(s).
   grunt.registerTask('default', ['compass', 'coffee']);
