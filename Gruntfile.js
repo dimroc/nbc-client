@@ -4,6 +4,13 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
+    watch: {
+      src: {
+        files: ['www/coffee/*.coffee', 'www/scss/**/*.scss'],
+        tasks: ['default']
+      }
+    },
+
     compass: {                  // Task
       dist: {                   // Target
         options: {              // Target options
@@ -57,6 +64,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Default task(s).
   grunt.registerTask('default', ['compass', 'coffee']);
