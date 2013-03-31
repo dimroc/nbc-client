@@ -6,8 +6,16 @@ module.exports = function(grunt) {
 
     watch: {
       src: {
-        files: ['www/coffee/*.coffee', 'www/scss/**/*.scss'],
-        tasks: ['default']
+        files: ['www/coffee/*.coffee'],
+        tasks: ['coffee']
+      },
+      src: {
+        files: ['www/scss/*.scss'],
+        tasks: ['compass']
+      },
+      src: {
+        files: ['www/js/*.js', 'www/css/**/*.css'],
+        tasks: ['livereload']
       }
     },
 
@@ -65,6 +73,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-livereload');
 
   // Default task(s).
   grunt.registerTask('default', ['compass', 'coffee']);
