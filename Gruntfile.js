@@ -3,6 +3,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
     compass: {                  // Task
       dist: {                   // Target
         options: {              // Target options
@@ -11,6 +12,25 @@ module.exports = function(grunt) {
           cssDir: 'css'
         }
       }
+    },
+
+    coffee: {
+      compileWithMaps: {
+        options: {
+          sourceMap: true
+        },
+        files: {
+          'www/js/application.js': ['www/coffee/*.coffee'] // concat then compile into single file
+        }
+      }
+
+      //glob_to_multiple: {
+        //expand: true,
+        //cwd: 'path/to',
+        //src: ['*.coffee'],
+        //dest: 'path/to/dest/',
+        //ext: '.js'
+      //}
     }
   });
 
@@ -22,5 +42,5 @@ module.exports = function(grunt) {
 
 
   // Default task(s).
-  grunt.registerTask('default', ['compass']);
+  grunt.registerTask('default', ['compass', 'coffee']);
 };
