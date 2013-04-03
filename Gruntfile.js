@@ -4,17 +4,17 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
-    watch: {
-      src: {
-        files: ['www/coffee/*.coffee'],
+    regarde: {
+      coffee: {
+        files: 'www/coffee/*.coffee',
         tasks: ['coffee']
       },
-      src: {
-        files: ['www/scss/*.scss'],
+      scss: {
+        files: 'www/scss/*.scss',
         tasks: ['compass']
       },
-      src: {
-        files: ['www/js/*.js', 'www/css/**/*.css'],
+      livereload: {
+        files: ['www/js/*.js', 'www/css/**/*.css', 'www/**/*.html'],
         tasks: ['livereload']
       }
     },
@@ -46,6 +46,15 @@ module.exports = function(grunt) {
       }
     },
 
+    connect: {
+      server: {
+        options: {
+          port: 9001,
+          base: 'www'
+        }
+      }
+    },
+
     coffee: {
       compileWithMaps: {
         options: {
@@ -72,9 +81,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-regarde');
   grunt.loadNpmTasks('grunt-contrib-livereload');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   // Default task(s).
-  grunt.registerTask('default', ['compass', 'coffee']);
+  grunt.registerTask('default', ['livereload-start', 'connect', 'regarde']);
 };
