@@ -31,10 +31,13 @@ module.exports = function(grunt) {
     coffee: {
       compileWithMaps: {
         options: {
-          sourceMap: true
+          sourceMap: false
         },
         files: {
-          'www/js/application.js': ['src/**/*.coffee'] // concat then compile into single file
+          'www/js/application.js': [
+            'src/coffee/initializers/*.coffee',
+            'src/coffee/**/*.coffee'
+          ] // concat then compile into single file
         }
       }
     },

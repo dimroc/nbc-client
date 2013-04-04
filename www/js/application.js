@@ -1,4 +1,3 @@
-//@ sourceMappingURL=application.map
 (function() {
   var TemplatePreloader, compiled, key, preloader, template, templateFiles, _i, _len;
 
