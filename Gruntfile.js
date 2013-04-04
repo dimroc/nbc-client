@@ -6,15 +6,15 @@ module.exports = function(grunt) {
 
     regarde: {
       coffee: {
-        files: 'www/coffee/*.coffee',
+        files: 'src/coffee/*.coffee',
         tasks: ['coffee']
       },
       scss: {
-        files: 'www/scss/*.scss',
+        files: 'src/scss/*.scss',
         tasks: ['compass']
       },
       livereload: {
-        files: ['www/js/*.js', 'www/css/**/*.css', 'www/**/*.html'],
+        files: ['www/js/*', 'www/css/*', 'www/**/*.html'],
         tasks: ['livereload']
       }
     },
@@ -22,9 +22,19 @@ module.exports = function(grunt) {
     compass: {                  // Task
       dist: {                   // Target
         options: {              // Target options
-          basePath: 'www',
-          sassDir: 'scss',
-          cssDir: 'css'
+          sassDir: 'src/scss',
+          cssDir: 'www/css'
+        }
+      }
+    },
+
+    coffee: {
+      compileWithMaps: {
+        options: {
+          sourceMap: true
+        },
+        files: {
+          'www/js/application.js': ['src/coffee/*.coffee'] // concat then compile into single file
         }
       }
     },
@@ -45,7 +55,7 @@ module.exports = function(grunt) {
             'components/underscore.string/dist/underscore.string.min.js',
             'components/backbone/backbone.js'
         ],
-        dest: 'www/js/vendor.js'
+        dest: 'www/vendor/vendor.js'
       }
     },
 
@@ -54,17 +64,6 @@ module.exports = function(grunt) {
         options: {
           port: 9001,
           base: 'www'
-        }
-      }
-    },
-
-    coffee: {
-      compileWithMaps: {
-        options: {
-          sourceMap: true
-        },
-        files: {
-          'www/js/application.js': ['www/coffee/*.coffee'] // concat then compile into single file
         }
       }
     }
