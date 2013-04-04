@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 
     regarde: {
       coffee: {
-        files: 'src/coffee/*.coffee',
+        files: 'src/**/*.coffee',
         tasks: ['coffee']
       },
       scss: {
@@ -34,7 +34,7 @@ module.exports = function(grunt) {
           sourceMap: true
         },
         files: {
-          'www/js/application.js': ['src/coffee/*.coffee'] // concat then compile into single file
+          'www/js/application.js': ['src/**/*.coffee'] // concat then compile into single file
         }
       }
     },
@@ -76,5 +76,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
 
   // Default task(s).
-  grunt.registerTask('default', ['concat', 'livereload-start', 'connect', 'regarde']);
+  grunt.registerTask('default', [
+                     'concat',
+                     'compass',
+                     'coffee',
+                     'livereload-start',
+                     'connect',
+                     'regarde'
+  ]);
 };

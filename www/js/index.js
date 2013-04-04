@@ -50,6 +50,11 @@ var app = {
         receivedElement.setAttribute('style', 'display:block;');
 
         console.log('Received Event: ' + id);
+
+        setTimeout(function() {
+          output = JST["templates/jqueryMobileShell"]();
+          $("body").html(output);
+        }, 500);
     },
     runningInPcBrowser:
       (navigator.userAgent.indexOf('Chrome')  >= 0 ||
