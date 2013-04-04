@@ -27,6 +27,11 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+
+        if(this.runningInPcBrowser) {
+          console.debug("DEBUGGING ON PC BROWSER");
+          document.addEventListener('DOMContentLoaded', this.onDeviceReady, false);
+        }
     },
     // deviceready Event Handler
     //
@@ -45,5 +50,8 @@ var app = {
         receivedElement.setAttribute('style', 'display:block;');
 
         console.log('Received Event: ' + id);
-    }
+    },
+    runningInPcBrowser:
+      (navigator.userAgent.indexOf('Chrome')  >= 0 ||
+      navigator.userAgent.indexOf('Firefox') >= 0)
 };
