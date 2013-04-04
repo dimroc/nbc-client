@@ -51,10 +51,12 @@ var app = {
 
         console.log('Received Event: ' + id);
 
-        setTimeout(function() {
-          output = JST["templates/jqueryMobileShell"]();
-          $("body").html(output);
-        }, 500);
+        if (!window.jasmine) {
+          setTimeout(function() {
+            output = JST["templates/jqueryMobileShell"]();
+            $("body").html(output);
+          }, 500);
+        }
     },
     runningInPcBrowser:
       (navigator.userAgent.indexOf('Chrome')  >= 0 ||
