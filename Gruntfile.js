@@ -38,9 +38,12 @@ module.exports = function(grunt) {
       dist: {
         src:
           [
+            // jquery mobile files directly in www/js/folder because
+            // they suck with bower
+            'components/jquery/jquery.js',
             'components/underscore/underscore.js',
             'components/underscore.string/dist/underscore.string.min.js',
-            'components/jquery-mobile/underscore.string.js'
+            'components/backbone/backbone.js'
         ],
         dest: 'www/js/vendor.js'
       }
@@ -64,20 +67,11 @@ module.exports = function(grunt) {
           'www/js/application.js': ['www/coffee/*.coffee'] // concat then compile into single file
         }
       }
-
-      //glob_to_multiple: {
-        //expand: true,
-        //cwd: 'path/to',
-        //src: ['*.coffee'],
-        //dest: 'path/to/dest/',
-        //ext: '.js'
-      //}
     }
   });
 
   // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-compass');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-concat');
@@ -86,5 +80,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
 
   // Default task(s).
-  grunt.registerTask('default', ['livereload-start', 'connect', 'regarde']);
+  grunt.registerTask('default', ['concat', 'livereload-start', 'connect', 'regarde']);
 };
