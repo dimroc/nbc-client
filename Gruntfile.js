@@ -14,7 +14,7 @@ module.exports = function(grunt) {
         tasks: ['compass']
       },
       livereload: {
-        files: ['www/js/*', 'www/css/*', 'www/img/*', 'www/**/*.html'],
+        files: ['www/js/*', 'www/css/*', 'www/img/*', 'www/*.html', 'www/**/*.html'],
         tasks: ['livereload']
       }
     },
@@ -41,9 +41,7 @@ module.exports = function(grunt) {
 
     concat: {
       options: {
-        stripBanners: true,
-        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-          '<%= grunt.template.today("yyyy-mm-dd") %> */'
+        stripBanners: true
       },
       dist: {
         src:

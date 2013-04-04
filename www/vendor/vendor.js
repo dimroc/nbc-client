@@ -1,4 +1,4 @@
-/*! nbc-client - v0.1.0 - 2013-04-03 *//*!
+/*!
  * jQuery JavaScript Library v1.9.1
  * http://jquery.com/
  *
