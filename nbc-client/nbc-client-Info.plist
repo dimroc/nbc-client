@@ -22,6 +22,11 @@
 -->
 <plist version="1.0">
 <dict>
+        <key>Plugins</key>
+        <dict>
+            <key>Capture</key>
+            <string>CDVCapture</string>
+        </dict>
 	<key>CFBundleIcons</key>
 	<dict>
 		<key>CFBundlePrimaryIcon</key>

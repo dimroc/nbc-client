@@ -53,7 +53,7 @@ var app = {
 
         if (!window.jasmine) {
           setTimeout(function() {
-            NBC.initialize();
+            NBC.instance().render();
           }, 2000);
         }
     },

@@ -1,10 +1,10 @@
 singleton = null
 
 class window.NBC
-  @initialize: ->
+  @instance: ->
     if(!singleton)
       singleton = new NBC()
-      singleton.render()
+    singleton
 
   constructor: ->
     @block = new NBC.Block()
@@ -12,9 +12,8 @@ class window.NBC
 
   render: ->
     stopScrolling = ( touchEvent ) -> touchEvent.preventDefault()
-    document.addEventListener( 'touchstart' , stopScrolling , false )
+    #document.addEventListener( 'touchstart' , stopScrolling , false )
     document.addEventListener( 'touchmove' , stopScrolling , false )
 
     @blockView.render()
     $("body").html(@blockView.$el)
-
