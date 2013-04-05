@@ -14,7 +14,14 @@ module.exports = function(grunt) {
         tasks: ['compass']
       },
       livereload: {
-        files: ['www/js/*', 'www/css/*', 'www/img/*', 'www/*.html', 'www/**/*.html'],
+        files: [
+          'www/js/*',
+          'www/css/*',
+          'www/img/*',
+          'www/templates/*',
+          'www/*.html',
+          'www/**/*.html'
+        ],
         tasks: ['livereload']
       }
     },
@@ -36,6 +43,8 @@ module.exports = function(grunt) {
         files: {
           'www/js/application.js': [
             'src/coffee/initializers/*.coffee',
+            'src/coffee/models/*.coffee',
+            'src/coffee/views/*.coffee',
             'src/coffee/**/*.coffee'
           ] // concat then compile into single file
         }

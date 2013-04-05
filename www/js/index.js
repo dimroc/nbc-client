@@ -53,9 +53,8 @@ var app = {
 
         if (!window.jasmine) {
           setTimeout(function() {
-            output = JST["templates/jqueryMobileShell"]();
-            $("body").html(output);
-          }, 500);
+            NBC.initialize();
+          }, 2000);
         }
     },
     runningInPcBrowser:
