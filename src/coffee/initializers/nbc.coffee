@@ -6,6 +6,8 @@ class window.NBC
       singleton = new NBC()
     singleton
 
+  @events: _.extend({}, Backbone.Events)
+
   constructor: ->
     @block = new NBC.Block()
     @blockView = new NBC.BlockView(model: @block)
