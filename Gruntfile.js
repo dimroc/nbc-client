@@ -44,6 +44,7 @@ module.exports = function(grunt) {
           'www/js/application.js': [
             'src/coffee/initializers/*.coffee',
             'src/coffee/models/*.coffee',
+            'src/coffee/observers/*.coffee',
             'src/coffee/views/*.coffee',
             'src/coffee/**/*.coffee'
           ] // concat then compile into single file

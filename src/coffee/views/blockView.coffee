@@ -19,8 +19,7 @@ class NBC.BlockView extends Backbone.View
       file.fullPath
 
     console.debug "recorded to #{paths[0]}"
-    @model.set('path', paths[0])
-    console.debug "model set to: #{@model.toString()}"
+    NBC.Block.create(paths[0])
 
   videoErrored: =>
     console.error "video errored", arguments

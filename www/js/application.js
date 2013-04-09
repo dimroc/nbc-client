@@ -11,6 +11,8 @@
       return singleton;
     };
 
+    NBC.events = _.extend({}, Backbone.Events);
+
     function NBC() {
       this.block = new NBC.Block();
       this.blockView = new NBC.BlockView({
@@ -78,6 +80,7 @@
 
 (function() {
   var _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -85,17 +88,65 @@
     __extends(Block, _super);
 
     function Block() {
-      _ref = Block.__super__.constructor.apply(this, arguments);
+      this.getPositionSuccess = __bind(this.getPositionSuccess, this);      _ref = Block.__super__.constructor.apply(this, arguments);
       return _ref;
     }
+
+    Block.create = function(path) {
+      return navigator.geolocation.getCurrentPosition(function() {
+        return console.log(arguments);
+      });
+    };
 
     Block.prototype.toString = function() {
       return "path: " + (this.get('path'));
     };
 
+    Block.prototype.getPositionSuccess = function(geopositions) {
+      debugger;
+      var lat, long;
+
+      lat = geopositions[0].coords.lat;
+      return long = geopositions[0].coords.long;
+    };
+
+    Block.prototype.getCurrentError = function() {
+      return console.warn("Failed to get current position", arguments);
+    };
+
     return Block;
 
   })(Backbone.Model);
+
+}).call(this);
+
+(function() {
+  var singleton,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  NBC.BlockObserver = (function(_super) {
+    __extends(BlockObserver, _super);
+
+    BlockObserver.instance = function() {
+      return singleton;
+    };
+
+    function BlockObserver() {
+      NBC.events.on("block:upload", this.uploadHandler, this);
+    }
+
+    BlockObserver.prototype.uploadHandler = function(block) {
+      console.log("upload block...", block);
+      debugger;
+      return $.mobile.changepage("templates/uploadPage.html");
+    };
+
+    return BlockObserver;
+
+  })(Backbone.Events);
+
+  singleton = new NBC.BlockObserver;
 
 }).call(this);
 
@@ -136,7 +187,7 @@
     };
 
     BlockView.prototype.videoRecorded = function(mediaFiles) {
-      var file, paths;
+      var file, model, paths;
 
       paths = (function() {
         var _i, _len, _results;
@@ -149,8 +200,9 @@
         return _results;
       })();
       console.debug("recorded to " + paths[0]);
-      this.model.set('path', paths[0]);
-      return console.debug("model set to: " + (this.model.toString()));
+      model = Block.create(paths[0]);
+      NBC.events.trigger("upload:block", model);
+      return console.debug("model set to: " + (model.toString()));
     };
 
     BlockView.prototype.videoErrored = function() {
