@@ -11,7 +11,8 @@ class NBC.BlockObserver extends Backbone.Events
 
   readyHandler: (block) ->
     console.log("observed block readied: ", block)
-    new NBC.UploadView(model: block).render()
-    block.upload()
+
+    uploader = new NBC.Uploader(block)
+    new NBC.UploadView(model: uploader).render()
 
 singleton = new NBC.BlockObserver

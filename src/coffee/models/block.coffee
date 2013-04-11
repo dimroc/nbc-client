@@ -31,10 +31,8 @@ class NBC.Block extends Backbone.Model
       console.debug "Recording video..."
       navigator.device.capture.captureVideo(@_videoRecorded, @_videoErrored)
     else
-      console.warn "Unable to record. No device."
-
-  upload: ->
-    console.debug("uploading block:\n#{JSON.stringify(@toJSON())}")
+      console.warn "Unable to record. No device. Using fake path."
+      @_videoRecorded([{fullPath: "BogusPath"}])
 
   _videoRecorded: (mediaFiles) =>
     paths = for file in mediaFiles
@@ -71,10 +69,15 @@ class NBC.Block extends Backbone.Model
       , @_handleError)
     else
       console.warn("No compass available")
+      @.set('direction', 'unavailable')
       @_directionDfd.resolve()
 
-  _handleError: ->
-    console.warn "Failed to get block information", arguments
+  _handleError: =>
+    msg = arguments[0].message if arguments[0]
+    console.warn "Failed to get block information: #{msg}"
 
-# Example path
-# /private/var/mobile/Applications/870AA17D-E0D3-49AE-AFF3-49288FD61B3B/tmp/capture-T0x1f54cc40.tmp.vbqs4s/capturedvideo.MOV
+    if(window.app.runningInPcBrowser)
+      console.warn "RUNNING IN BROWSER: SETTING BOGUS GEOLOCATION"
+      @.set('latitude', -73.9973624120529)
+      @.set('longitude', 40.5279133236147)
+      @_positionDfd.resolve()

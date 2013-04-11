@@ -85,6 +85,7 @@
     __extends(Block, _super);
 
     function Block() {
+      this._handleError = __bind(this._handleError, this);
       this._setCurrentPosition = __bind(this._setCurrentPosition, this);
       this._videoErrored = __bind(this._videoErrored, this);
       this._videoRecorded = __bind(this._videoRecorded, this);
@@ -123,12 +124,13 @@
         console.debug("Recording video...");
         return navigator.device.capture.captureVideo(this._videoRecorded, this._videoErrored);
       } else {
-        return console.warn("Unable to record. No device.");
+        console.warn("Unable to record. No device. Using fake path.");
+        return this._videoRecorded([
+          {
+            fullPath: "BogusPath"
+          }
+        ]);
       }
-    };
-
-    Block.prototype.upload = function() {
-      return console.debug("uploading block:\n" + (JSON.stringify(this.toJSON())));
     };
 
     Block.prototype._videoRecorded = function(mediaFiles) {
@@ -184,17 +186,71 @@
         }, this._handleError);
       } else {
         console.warn("No compass available");
+        this.set('direction', 'unavailable');
         return this._directionDfd.resolve();
       }
     };
 
     Block.prototype._handleError = function() {
-      return console.warn("Failed to get block information", arguments);
+      var msg;
+
+      if (arguments[0]) {
+        msg = arguments[0].message;
+      }
+      console.warn("Failed to get block information: " + msg);
+      if (window.app.runningInPcBrowser) {
+        console.warn("RUNNING IN BROWSER: SETTING BOGUS GEOLOCATION");
+        this.set('latitude', -73.9973624120529);
+        this.set('longitude', 40.5279133236147);
+        return this._positionDfd.resolve();
+      }
     };
 
     return Block;
 
   })(Backbone.Model);
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  NBC.Uploader = (function(_super) {
+    __extends(Uploader, _super);
+
+    function Uploader(block) {
+      this._handleFailure = __bind(this._handleFailure, this);
+      this._handleSuccess = __bind(this._handleSuccess, this);      this.block = block;
+      this.dfd = $.Deferred();
+    }
+
+    Uploader.prototype.promise = function() {
+      return this.dfd.promise();
+    };
+
+    Uploader.prototype.upload = function() {
+      var videoUploader;
+
+      videoUploader = new Uploader.Video(this.block.get('path'));
+      $.when(videoUploader.promise()).then(this._handleSuccess, this._handleFailure);
+      videoUploader.upload();
+      return this.promise();
+    };
+
+    Uploader.prototype._handleSuccess = function() {
+      return this.dfd.resolve();
+    };
+
+    Uploader.prototype._handleFailure = function() {
+      console.warn("ERROR UPLOADING VIDEO");
+      return this.dfd.reject();
+    };
+
+    return Uploader;
+
+  })(Backbone.Events);
 
 }).call(this);
 
@@ -220,11 +276,13 @@
     };
 
     BlockObserver.prototype.readyHandler = function(block) {
+      var uploader;
+
       console.log("observed block readied: ", block);
-      new NBC.UploadView({
-        model: block
+      uploader = new NBC.Uploader(block);
+      return new NBC.UploadView({
+        model: uploader
       }).render();
-      return block.upload();
     };
 
     return BlockObserver;
@@ -275,6 +333,7 @@
 
 (function() {
   var _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -282,17 +341,114 @@
     __extends(UploadView, _super);
 
     function UploadView() {
-      _ref = UploadView.__super__.constructor.apply(this, arguments);
+      this.startUpload = __bind(this.startUpload, this);      _ref = UploadView.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
+    UploadView.prototype.initialize = function() {
+      return $.when(this.model.promise()).then(this._handleSuccess, this._handleFailure);
+    };
+
     UploadView.prototype.render = function() {
-      console.log("rendering upload for block: " + (this.model.toString()));
+      var _this = this;
+
+      console.log("rendering upload for block: " + (this.model.block.toString()));
+      $.mobile.pageContainer.bind("pagechange", function(evt) {
+        $("button.start_upload").click(_this.startUpload);
+        return $.mobile.pageContainer.unbind("pagechange");
+      });
       return $.mobile.changePage("templates/uploadPage.html");
+    };
+
+    UploadView.prototype.startUpload = function() {
+      return this.model.upload();
+    };
+
+    UploadView._handleSuccess = function() {
+      console.log("SUCCESSFULLY UPLOADED ALL DATA");
+      return UploadView.setResult("SUCCESS");
+    };
+
+    UploadView._handleFailure = function() {
+      console.warn("FAILED TO UPLOAD", arguments);
+      return UploadView.setResult("FAILURE");
+    };
+
+    UploadView.setResult = function(result) {
+      return $("[data-role=content].result").text(result);
     };
 
     return UploadView;
 
-  })(Backbone.View);
+  }).call(this, Backbone.View);
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  NBC.Uploader.Video = (function() {
+    function Video(path) {
+      this._uploadFail = __bind(this._uploadFail, this);
+      this._uploadSuccess = __bind(this._uploadSuccess, this);
+      this.upload = __bind(this.upload, this);      if (!path) {
+        console.warn("UPLOADING EMPTY PATH");
+      }
+      this.path = path;
+      this.dfd = $.Deferred();
+    }
+
+    Video.prototype.promise = function() {
+      return this.dfd.promise();
+    };
+
+    Video.prototype.uri = encodeURI("https://newblockcity_dev_uploads.s3.amazonaws.com/");
+
+    Video.prototype.upload = function() {
+      var ft, options;
+
+      options = this._generateOptions();
+      ft = new FileTransfer();
+      return ft.upload(this.path, this.uri, this._uploadSuccess, this._uploadFail, options);
+    };
+
+    Video.prototype._uploadSuccess = function(fileUploadResult) {
+      this.result = fileUploadResult;
+      console.log("upload success: ", this.result);
+      return this.dfd.resolve(this.result);
+    };
+
+    Video.prototype._uploadFail = function(fileTransferError) {
+      this.result = fileTransferError;
+      console.log("upload fail: ", this.result);
+      return this.dfd.reject(this.result);
+    };
+
+    Video.prototype._generateOptions = function() {
+      var fileName, options, policyDoc, signature, time;
+
+      time = new Date().getTime();
+      fileName = "nbc-phonegap-client-" + time + ".MOV";
+      options = new FileUploadOptions();
+      options.fileKey = "file";
+      options.fileName = fileName;
+      options.mimeType = "video/quicktime";
+      options.chunkedMode = true;
+      policyDoc = "POLICY_DOC_GOES_HERE";
+      signature = "SIGNATURE_GOES_HERE";
+      options.params = {
+        "key": fileName,
+        "AWSAccessKeyId": "ACCESS_KEY_GOES_HERE",
+        "acl": "public-read",
+        "policy": policyDoc,
+        "signature": signature,
+        "Content-Type": "image/jpeg"
+      };
+      return options;
+    };
+
+    return Video;
+
+  })();
 
 }).call(this);
