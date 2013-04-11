@@ -9,8 +9,7 @@ class window.NBC
   @events: _.extend({}, Backbone.Events)
 
   constructor: ->
-    @block = new NBC.Block()
-    @blockView = new NBC.BlockView(model: @block)
+    @blockView = new NBC.BlockView()
 
   render: ->
     stopScrolling = ( touchEvent ) -> touchEvent.preventDefault()

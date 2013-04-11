@@ -7,10 +7,11 @@ class NBC.BlockObserver extends Backbone.Events
     NBC.events.on("block:ready", @readyHandler, @)
 
   startHandler: (block) ->
-    console.log("observed block recorded...", block)
-    #$.mobile.changepage("templates/uploadPage.html")
+    console.log("observed block started: ", block)
 
   readyHandler: (block) ->
-    console.log("observed block readied...", block)
+    console.log("observed block readied: ", block)
+    new NBC.UploadView(model: block).render()
+    block.upload()
 
 singleton = new NBC.BlockObserver
