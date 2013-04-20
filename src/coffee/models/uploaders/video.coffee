@@ -13,6 +13,7 @@ class NBC.Uploader.Video
 # /private/var/mobile/Applications/870AA17D-E0D3-49AE-AFF3-49288FD61B3B/tmp/capture-T0x1f54cc40.tmp.vbqs4s/capturedvideo.MOV
 
   upload: =>
+    # Phonegap specific libraries. Does not function on web.
     options = @_generateOptions()
 
     ft = new FileTransfer()
@@ -25,12 +26,23 @@ class NBC.Uploader.Video
 
   _uploadSuccess: (fileUploadResult) =>
     @result = fileUploadResult
-    console.log "upload success: ", @result
+    console.log(
+      """
+      upload success
+      response:\n#{@result.response}
+      """)
     @dfd.resolve(@result)
 
   _uploadFail: (fileTransferError) =>
     @result = fileTransferError
-    console.log "upload fail: ", @result
+    console.error(
+      """
+      upload fail:
+      code:#{@result.code}
+      source:#{@result.source}
+      target:#{@result.target}
+      http_status:#{@result.http_status}
+      """)
     @dfd.reject(@result)
 
   _generateOptions: ->
@@ -43,15 +55,14 @@ class NBC.Uploader.Video
     options.mimeType ="video/quicktime"
     options.chunkedMode = true
 
-    policyDoc = "POLICY_DOC_GOES_HERE"
-    signature = "SIGNATURE_GOES_HERE"
+    access = new NBC.AwsAccess()
 
     options.params = {
       "key": fileName,
-      "AWSAccessKeyId": "ACCESS_KEY_GOES_HERE",
+      "AWSAccessKeyId": access.awsAccessKeyId,
       "acl": "public-read",
-      "policy": policyDoc,
-      "signature": signature,
-      "Content-Type": "image/jpeg"
+      "policy": access.base64Policy,
+      "signature": access.signature,
+      "Content-Type": "video/quicktime"
     }
     options

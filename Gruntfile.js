@@ -64,7 +64,11 @@ module.exports = function(grunt) {
             'components/jquery/jquery.js',
             'components/underscore/underscore.js',
             'components/underscore.string/dist/underscore.string.min.js',
-            'components/backbone/backbone.js'
+            'components/backbone/backbone.js',
+            'components/cryptojs/lib/Crypto.js',
+            'components/cryptojs/lib/CryptoMath.js',
+            'components/cryptojs/lib/SHA1.js',
+            'components/cryptojs/lib/HMAC.js'
         ],
         dest: 'www/vendor/vendor.js'
       }

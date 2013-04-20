@@ -76,6 +76,36 @@
 }).call(this);
 
 (function() {
+  NBC.AwsAccess = (function() {
+    function AwsAccess() {
+      this.base64Policy = "eyJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJuZXdibG9ja2NpdHlfZGV2X3VwbG9hZHMifSx7ImFjbCI6InB1YmxpYy1yZWFkIn0seyJDb250ZW50LVR5cGUiOiJ2aWRlby9xdWlja3RpbWUifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsIm5iYy1waG9uZWdhcCJdLHsic3VjY2Vzc19hY3Rpb25fcmVkaXJlY3QiOiJodHRwOi8vbG9jYWxob3N0LyJ9LFsiY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwXV19";
+      this.signature = "J4NcTsMaaLXQyu3ji0CyG8zN0GA=";
+    }
+
+    AwsAccess.prototype.awsAccessKeyId = "AKIAJDXHDWWVPG5LCKCQ";
+
+    AwsAccess.prototype.policy = {
+      "conditions": [
+        {
+          "bucket": "newblockcity_dev_uploads"
+        }, {
+          "acl": "public-read"
+        }, {
+          "Content-Type": "Content-Type",
+          "video/quicktime": "video/quicktime"
+        }, ["starts-with", "$key", "nbc-phonegap"], {
+          "success_action_redirect": "http://localhost/"
+        }, ["content-length-range", 0, 104857600]
+      ]
+    };
+
+    return AwsAccess;
+
+  })();
+
+}).call(this);
+
+(function() {
   var _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -414,18 +444,18 @@
 
     Video.prototype._uploadSuccess = function(fileUploadResult) {
       this.result = fileUploadResult;
-      console.log("upload success: ", this.result);
+      console.log("upload success\nresponse:\n" + this.result.response);
       return this.dfd.resolve(this.result);
     };
 
     Video.prototype._uploadFail = function(fileTransferError) {
       this.result = fileTransferError;
-      console.log("upload fail: ", this.result);
+      console.error("upload fail:\ncode:" + this.result.code + "\nsource:" + this.result.source + "\ntarget:" + this.result.target + "\nhttp_status:" + this.result.http_status);
       return this.dfd.reject(this.result);
     };
 
     Video.prototype._generateOptions = function() {
-      var fileName, options, policyDoc, signature, time;
+      var access, fileName, options, time;
 
       time = new Date().getTime();
       fileName = "nbc-phonegap-client-" + time + ".MOV";
@@ -434,15 +464,14 @@
       options.fileName = fileName;
       options.mimeType = "video/quicktime";
       options.chunkedMode = true;
-      policyDoc = "POLICY_DOC_GOES_HERE";
-      signature = "SIGNATURE_GOES_HERE";
+      access = new NBC.AwsAccess();
       options.params = {
         "key": fileName,
-        "AWSAccessKeyId": "ACCESS_KEY_GOES_HERE",
+        "AWSAccessKeyId": access.awsAccessKeyId,
         "acl": "public-read",
-        "policy": policyDoc,
-        "signature": signature,
-        "Content-Type": "image/jpeg"
+        "policy": access.base64Policy,
+        "signature": access.signature,
+        "Content-Type": "video/quicktime"
       };
       return options;
     };
