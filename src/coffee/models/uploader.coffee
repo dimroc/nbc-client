@@ -8,13 +8,10 @@ class NBC.Uploader extends Backbone.Events
 
   upload: ->
     videoUploader = new Uploader.Video(@block)
-
     #blockUploader = new Uploader.Block(@block)
-    #pandaUploader = new Uploader.Panda()
 
     #videoUploader.promise().then(blockUploader.upload)
-    #blockUploader.promise().then(pandaUploader.upload)
-    #pandaUploader.promise().then(@_handleSuccess)
+    #blockUploader.promise().then(handlesuccess)
 
     $.when(videoUploader.promise()).then(
       @_handleSuccess,
