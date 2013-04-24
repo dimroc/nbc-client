@@ -18,19 +18,28 @@ class NBC.UploadView extends Backbone.View
     )
 
     $.mobile.changePage("templates/uploadPage.html")
+    @setResult("")
+    $(".spinner").hide()
 
   startUpload: =>
-    @model.upload()
+    uploadPromise = @model.upload()
+    $(".spinner").show()
 
-  @_handleSuccess: =>
+    $.when(uploadPromise).then(
+      @_handleSuccess,
+      @_handleFailure)
+
+  _handleSuccess: =>
     console.log("SUCCESSFULLY UPLOADED ALL DATA")
     @setResult("SUCCESS")
-    #$.mobile.changePage("#shell")
+    $(".spinner").hide()
+    $("a[href=#shell]").click()
 
-  @_handleFailure: =>
+  _handleFailure: =>
     console.warn("FAILED TO UPLOAD", arguments)
-    @setResult("FAILURE")
-    #$.mobile.changePage("#shell")
+    argumentString = arguments.join(",")
+    $(".spinner").hide()
+    @setResult("FAILURE: #{argumentString}")
 
-  @setResult: (result) =>
-    $("[data-role=content].result").text(result)
+  setResult: (result) =>
+    $(".result").text(result)

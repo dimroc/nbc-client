@@ -2,3 +2,18 @@
 .logo {
   margin-bottom: 40px;
 }
+
+/* line 5, ../../src/scss/application.scss */
+.center {
+  margin: 0 auto;
+}
+
+/* line 9, ../../src/scss/application.scss */
+.center-wrapper {
+  text-align: center;
+}
+
+/* line 12, ../../src/scss/application.scss */
+.center-wrapper * {
+  margin: 0 auto;
+}

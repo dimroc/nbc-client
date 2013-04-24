@@ -138,7 +138,7 @@
     };
 
     Block.prototype.toString = function() {
-      return "block\nposition: " + (this.get('latitude')) + ", " + (this.get('longitude')) + "\ntime: " + (this.get('time')) + "\ndirection: " + (this.get('direction')) + "\npath: " + (this.get('path'));
+      return "block\nposition: " + (this.get('latitude')) + ", " + (this.get('longitude')) + "\ntime: " + (this.get('time')) + "\ndirection: " + (this.get('direction')) + "\npath: " + (this.get('path')) + "\nuploadTime: " + (this.get('uploadTime')) + "\nuploadUri: " + (this.get('uploadUri')) + "\nuploadFileName: " + (this.get('uploadFileName'));
     };
 
     Block.prototype.recordVideo = function() {
@@ -255,7 +255,7 @@
     Uploader.prototype.upload = function() {
       var videoUploader;
 
-      videoUploader = new Uploader.Video(this.block.get('path'));
+      videoUploader = new Uploader.Video(this.block);
       $.when(videoUploader.promise()).then(this._handleSuccess, this._handleFailure);
       videoUploader.upload();
       return this.promise();
@@ -363,6 +363,9 @@
     __extends(UploadView, _super);
 
     function UploadView() {
+      this.setResult = __bind(this.setResult, this);
+      this._handleFailure = __bind(this._handleFailure, this);
+      this._handleSuccess = __bind(this._handleSuccess, this);
       this.startUpload = __bind(this.startUpload, this);      _ref = UploadView.__super__.constructor.apply(this, arguments);
       return _ref;
     }
@@ -379,30 +382,42 @@
         $("button.start_upload").click(_this.startUpload);
         return $.mobile.pageContainer.unbind("pagechange");
       });
-      return $.mobile.changePage("templates/uploadPage.html");
+      $.mobile.changePage("templates/uploadPage.html");
+      this.setResult("");
+      return $(".spinner").hide();
     };
 
     UploadView.prototype.startUpload = function() {
-      return this.model.upload();
+      var uploadPromise;
+
+      uploadPromise = this.model.upload();
+      $(".spinner").show();
+      return $.when(uploadPromise).then(this._handleSuccess, this._handleFailure);
     };
 
-    UploadView._handleSuccess = function() {
+    UploadView.prototype._handleSuccess = function() {
       console.log("SUCCESSFULLY UPLOADED ALL DATA");
-      return UploadView.setResult("SUCCESS");
+      this.setResult("SUCCESS");
+      $(".spinner").hide();
+      return $("a[href=#shell]").click();
     };
 
-    UploadView._handleFailure = function() {
+    UploadView.prototype._handleFailure = function() {
+      var argumentString;
+
       console.warn("FAILED TO UPLOAD", arguments);
-      return UploadView.setResult("FAILURE");
+      argumentString = arguments.join(",");
+      $(".spinner").hide();
+      return this.setResult("FAILURE: " + argumentString);
     };
 
-    UploadView.setResult = function(result) {
-      return $("[data-role=content].result").text(result);
+    UploadView.prototype.setResult = function(result) {
+      return $(".result").text(result);
     };
 
     return UploadView;
 
-  }).call(this, Backbone.View);
+  })(Backbone.View);
 
 }).call(this);
 
@@ -410,13 +425,16 @@
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   NBC.Uploader.Video = (function() {
-    function Video(path) {
+    function Video(block) {
       this._uploadFail = __bind(this._uploadFail, this);
       this._uploadSuccess = __bind(this._uploadSuccess, this);
-      this.upload = __bind(this.upload, this);      if (!path) {
+      this.upload = __bind(this.upload, this);      this.block = block;
+      if (block) {
+        this.path = block.get('path');
+      }
+      if (!this.path) {
         console.warn("UPLOADING EMPTY PATH");
       }
-      this.path = path;
       this.dfd = $.Deferred();
     }
 
@@ -429,6 +447,10 @@
     Video.prototype.upload = function() {
       var ft, options;
 
+      this.time = new Date().getTime();
+      this.destinationFileName = "nbc-phonegap-client-" + this.time + ".mov";
+      this.destinationUri = ("" + this.uri + "nbc-phonegap-client-") + this.time + ".mov";
+      this._updateBlock();
       options = this._generateOptions();
       ft = new FileTransfer();
       return ft.upload(this.path, this.uri, this._uploadSuccess, this._uploadFail, options);
@@ -436,7 +458,7 @@
 
     Video.prototype._uploadSuccess = function(fileUploadResult) {
       this.result = fileUploadResult;
-      console.log("upload success\nresponse:\n" + this.result.response);
+      console.log("upload success for " + this.destinationFileName + "\nresponse:\n" + this.result.response);
       return this.dfd.resolve(this.result);
     };
 
@@ -447,18 +469,16 @@
     };
 
     Video.prototype._generateOptions = function() {
-      var access, fileName, options, time;
+      var access, options;
 
-      time = new Date().getTime();
-      fileName = "nbc-phonegap-client-" + time + ".mov";
       options = new FileUploadOptions();
       options.fileKey = "file";
-      options.fileName = fileName;
+      options.fileName = this.destinationFileName;
       options.mimeType = "video/quicktime";
       options.chunkedMode = true;
       access = new NBC.AwsAccess();
       options.params = {
-        "key": fileName,
+        "key": this.destinationFileName,
         "AWSAccessKeyId": access.awsAccessKeyId,
         "acl": "public-read",
         "policy": access.base64Policy,
@@ -466,6 +486,12 @@
         "Content-Type": "video/quicktime"
       };
       return options;
+    };
+
+    Video.prototype._updateBlock = function() {
+      this.block.set('uploadTime', this.time);
+      this.block.set('uploadUri', this.destinationUri);
+      return this.block.set('uploadFileName', this.destinationFileName);
     };
 
     return Video;

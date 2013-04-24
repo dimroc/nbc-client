@@ -24,6 +24,9 @@ class NBC.Block extends Backbone.Model
     time: #{@get('time')}
     direction: #{@get('direction')}
     path: #{@get('path')}
+    uploadTime: #{@get('uploadTime')}
+    uploadUri: #{@get('uploadUri')}
+    uploadFileName: #{@get('uploadFileName')}
     """
 
   recordVideo: ->

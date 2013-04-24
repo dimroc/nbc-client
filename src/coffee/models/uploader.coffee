@@ -7,7 +7,7 @@ class NBC.Uploader extends Backbone.Events
     @dfd.promise()
 
   upload: ->
-    videoUploader = new Uploader.Video(@block.get('path'))
+    videoUploader = new Uploader.Video(@block)
 
     #blockUploader = new Uploader.Block(@block)
     #pandaUploader = new Uploader.Panda()
