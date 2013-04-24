@@ -3,18 +3,7 @@ class NBC.AwsAccess
   base64Policy: NBC.constants.policy
   signature: NBC.constants.signature
 
-  policy:
-    {
-      #"expiration": "2009-01-01T00:00:00Z",
-      "conditions": [
-        {"bucket": "newblockcity_dev_uploads"},
-        {"acl": "public-read"},
-        {"Content-Type", "video/quicktime"},
-        ["starts-with", "$key", "nbc-phonegap"],
-        {"success_action_redirect": "http://localhost:9001/"},
-        ["content-length-range", 0, 104857600]
-      ]
-    }
+  # Policy and Signature found in Rakefile
 
   #SUCCESS URL RETURNED:
   # http://localhost:9001/?bucket=newblockcity_dev_uploads&key=nbc-phonegap-test.mov&etag=%226e7389719479b3245e3af3656f4500bc%22

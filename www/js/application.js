@@ -30,8 +30,8 @@
 
     NBC.constants = {
       AWSAccessKeyId: "AKIAJDXHDWWVPG5LCKCQ",
-      policy: "eyJleHBpcmF0aW9uIjoiMjAxOS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJuZXdibG9ja2NpdHlfZGV2X3VwbG9hZHMifSx7ImFjbCI6InB1YmxpYy1yZWFkIn0seyJDb250ZW50LVR5cGUiOiJ2aWRlby9xdWlja3RpbWUifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsIm5iYy1waG9uZWdhcCJdLHsic3VjY2Vzc19hY3Rpb25fcmVkaXJlY3QiOiJodHRwOi8vbG9jYWxob3N0OjkwMDEvIn0sWyJjb250ZW50LWxlbmd0aC1yYW5nZSIsMCwxMDQ4NTc2MDBdXX0=",
-      signature: "em5ESalb66muSpqNBA9xxnneF04="
+      policy: "eyJleHBpcmF0aW9uIjoiMjAxOS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJuZXdibG9ja2NpdHlfZGV2X3VwbG9hZHMifSx7ImFjbCI6InB1YmxpYy1yZWFkIn0seyJDb250ZW50LVR5cGUiOiJ2aWRlby9xdWlja3RpbWUifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsIm5iYy1waG9uZWdhcCJdLFsiY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwXV19",
+      signature: "hZ9vxI1SogIN8vsI+ZaecvKebtk="
     };
 
     return NBC;
@@ -90,21 +90,6 @@
     AwsAccess.prototype.base64Policy = NBC.constants.policy;
 
     AwsAccess.prototype.signature = NBC.constants.signature;
-
-    AwsAccess.prototype.policy = {
-      "conditions": [
-        {
-          "bucket": "newblockcity_dev_uploads"
-        }, {
-          "acl": "public-read"
-        }, {
-          "Content-Type": "Content-Type",
-          "video/quicktime": "video/quicktime"
-        }, ["starts-with", "$key", "nbc-phonegap"], {
-          "success_action_redirect": "http://localhost:9001/"
-        }, ["content-length-range", 0, 104857600]
-      ]
-    };
 
     return AwsAccess;
 
@@ -465,7 +450,7 @@
       var access, fileName, options, time;
 
       time = new Date().getTime();
-      fileName = "nbc-phonegap-client-" + time + ".MOV";
+      fileName = "nbc-phonegap-client-" + time + ".mov";
       options = new FileUploadOptions();
       options.fileKey = "file";
       options.fileName = fileName;

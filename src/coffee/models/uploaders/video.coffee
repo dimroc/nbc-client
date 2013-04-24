@@ -47,7 +47,7 @@ class NBC.Uploader.Video
 
   _generateOptions: ->
     time = new Date().getTime()
-    fileName = "nbc-phonegap-client-"+time+".MOV"
+    fileName = "nbc-phonegap-client-"+time+".mov"
 
     options = new FileUploadOptions()
     options.fileKey="file"
