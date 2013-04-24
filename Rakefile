@@ -7,13 +7,13 @@ require 'pry'
 
 def policy_document
   {
-    #"expiration": "2009-01-01T00:00:00Z",
+    expiration: "2019-01-01T00:00:00Z",
     conditions: [
       {bucket: "newblockcity_dev_uploads"},
       {acl: "public-read"},
       {"Content-Type" => "video/quicktime"},
       ["starts-with", "$key", "nbc-phonegap"],
-      {success_action_redirect: "http://localhost/"},
+      {success_action_redirect: "http://localhost:9001/"},
       ["content-length-range", 0, 104857600]
     ]
   }

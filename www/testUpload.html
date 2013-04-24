@@ -23,14 +23,13 @@
     <h1>test page for AWS S3 Upload</h1>
 
     <form action="https://newblockcity_dev_uploads.s3.amazonaws.com/" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="key" value="uploads/${filename}">
-      <input type="hidden" name="AWSAccessKeyId" value="YOUR_AWS_ACCESS_KEY">
-      <input type="hidden" name="acl" value="private">
-      <input type="hidden" name="success_action_redirect" value="http://localhost/">
-      <input type="hidden" name="policy" value="YOUR_POLICY_DOCUMENT_BASE64_ENCODED">
-      <input type="hidden" name="signature" value="YOUR_CALCULATED_SIGNATURE">
-      <input type="hidden" name="Content-Type" value="image/jpeg">
-      <!-- Include any additional input fields here -->
+      <input type="hidden" name="key" value="nbc-phonegap-test.mov">
+      <input type="hidden" name="AWSAccessKeyId" value="AKIAJDXHDWWVPG5LCKCQ">
+      <input type="hidden" name="acl" value="public-read">
+      <input type="hidden" name="success_action_redirect" value="http://localhost:9001/">
+      <input type="hidden" name="policy" value="DYNAMICALLY_POPULATED">
+      <input type="hidden" name="signature" value="DYNAMICALLY_POPULATED">
+      <input type="hidden" name="Content-Type" value="video/quicktime">
 
       File to upload to S3:
       <input name="file" type="file">
@@ -42,6 +41,8 @@
       // Intentionally creating variables in global scope for easier debugging
       console.log("testing AWS upload!");
       var awsAccess = new NBC.AwsAccess();
+      $("input[name=policy]").val(awsAccess.base64Policy)
+      $("input[name=signature]").val(awsAccess.signature)
     </script>
   </body>
 </html>
