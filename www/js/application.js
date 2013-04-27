@@ -508,6 +508,7 @@
     Video.prototype._uploadSuccess = function(fileUploadResult) {
       this.result = fileUploadResult;
       console.log("upload success for " + (this.destinationUri()) + "\nresponse:\n" + this.result.response);
+      this.block.set('destinationUri', this.destinationUri());
       return this.dfd.resolve(this.result);
     };
 

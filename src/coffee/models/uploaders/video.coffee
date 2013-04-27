@@ -34,6 +34,7 @@ class NBC.Uploader.Video
       upload success for #{@destinationUri()}
       response:\n#{@result.response}
       """)
+    @block.set('destinationUri', @destinationUri())
     @dfd.resolve(@result)
 
   _uploadFail: (fileTransferError) =>
