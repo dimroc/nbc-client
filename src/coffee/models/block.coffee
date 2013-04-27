@@ -1,16 +1,15 @@
 class NBC.Block extends Backbone.Model
-  @create: (path) ->
-    block = new NBC.Block()
-    block._setCurrentPosition()
-    block._setCurrentTime()
-    block._setCurrentDirection()
-
-    block
+  urlRoot: "http://localhost:3000/client/blocks"
 
   initialize: ->
     @_positionDfd = $.Deferred()
     @_directionDfd = $.Deferred()
     @_videoDfd = $.Deferred()
+
+    @_setCurrentPosition()
+    @_setCurrentTime()
+    @_setCurrentDirection()
+    @_setDestinationPath()
 
     $.when(@_positionDfd, @_directionDfd, @_videoDfd).then(=>
       NBC.events.trigger("block:ready", @))
@@ -24,9 +23,7 @@ class NBC.Block extends Backbone.Model
     time: #{@get('time')}
     direction: #{@get('direction')}
     path: #{@get('path')}
-    uploadTime: #{@get('uploadTime')}
-    uploadUri: #{@get('uploadUri')}
-    uploadFileName: #{@get('uploadFileName')}
+    destinationPath: #{@get('destinationPath')}
     """
 
   recordVideo: ->
@@ -49,7 +46,7 @@ class NBC.Block extends Backbone.Model
     console.error "video errored", arguments
     navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error')
 
-  _setCurrentPosition: (geopositions) =>
+  _setCurrentPosition: =>
     if (navigator.geolocation)
       navigator.geolocation.getCurrentPosition((geopositions) =>
         @.set('latitude', geopositions.coords.latitude)
@@ -74,6 +71,11 @@ class NBC.Block extends Backbone.Model
       console.warn("No compass available")
       @.set('direction', 'unavailable')
       @_directionDfd.resolve()
+
+  _setDestinationPath: ->
+    timeValue = @.get('time').getTime()
+    destinationFileName = "nbc-phonegap-client-"+timeValue+".mov"
+    @.set('destinationPath', destinationFileName)
 
   _handleError: =>
     msg = arguments[0].message if arguments[0]

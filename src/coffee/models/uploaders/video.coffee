@@ -8,25 +8,21 @@ class NBC.Uploader.Video
   promise: ->
     @dfd.promise()
 
-  uri: encodeURI("https://newblockcity_dev_uploads.s3.amazonaws.com/")
+  baseUri: encodeURI("https://newblockcity_dev_uploads.s3.amazonaws.com/")
+
+  destinationUri: => "#{@baseUri}#{@block.get('destinationPath')}"
 
 # Example path
 # /private/var/mobile/Applications/870AA17D-E0D3-49AE-AFF3-49288FD61B3B/tmp/capture-T0x1f54cc40.tmp.vbqs4s/capturedvideo.MOV
 
   upload: =>
-    @time = new Date().getTime()
-    @destinationFileName = "nbc-phonegap-client-"+@time+".mov"
-    @destinationUri = "#{@uri}nbc-phonegap-client-"+@time+".mov"
-
-    @_updateBlock()
-
     # Phonegap specific libraries. Does not function on web.
     options = @_generateOptions()
 
     ft = new FileTransfer()
     ft.upload(
-      @path,
-      @uri,
+      @block.get('destinationPath'),
+      @baseUri,
       @_uploadSuccess,
       @_uploadFail,
       options)
@@ -35,7 +31,7 @@ class NBC.Uploader.Video
     @result = fileUploadResult
     console.log(
       """
-      upload success for #{@destinationFileName}
+      upload success for #{@destinationUri()}
       response:\n#{@result.response}
       """)
     @dfd.resolve(@result)
@@ -55,14 +51,14 @@ class NBC.Uploader.Video
   _generateOptions: ->
     options = new FileUploadOptions()
     options.fileKey="file"
-    options.fileName = @destinationFileName
+    options.fileName = @block.get('destinationPath')
     options.mimeType ="video/quicktime"
     options.chunkedMode = true
 
     access = new NBC.AwsAccess()
 
     options.params = {
-      "key": @destinationFileName,
+      "key": @block.get('destinationPath'),
       "AWSAccessKeyId": access.awsAccessKeyId,
       "acl": "public-read",
       "policy": access.base64Policy,
@@ -70,8 +66,3 @@ class NBC.Uploader.Video
       "Content-Type": "video/quicktime"
     }
     options
-
-  _updateBlock: ->
-    @block.set('uploadTime', @time)
-    @block.set('uploadUri', @destinationUri)
-    @block.set('uploadFileName', @destinationFileName)

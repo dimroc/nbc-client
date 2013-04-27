@@ -15,6 +15,12 @@
   singleton = null;
 
   window.NBC = (function() {
+    NBC.constants = {
+      AWSAccessKeyId: "AKIAJDXHDWWVPG5LCKCQ",
+      policy: "eyJleHBpcmF0aW9uIjoiMjAxOS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJuZXdibG9ja2NpdHlfZGV2X3VwbG9hZHMifSx7ImFjbCI6InB1YmxpYy1yZWFkIn0seyJDb250ZW50LVR5cGUiOiJ2aWRlby9xdWlja3RpbWUifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsIm5iYy1waG9uZWdhcCJdLFsiY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwXV19",
+      signature: "hZ9vxI1SogIN8vsI+ZaecvKebtk="
+    };
+
     NBC.instance = function() {
       if (!singleton) {
         singleton = new NBC();
@@ -37,12 +43,6 @@
       document.addEventListener('touchmove', stopScrolling, false);
       this.blockView.render();
       return $("body").html(this.blockView.$el);
-    };
-
-    NBC.constants = {
-      AWSAccessKeyId: "AKIAJDXHDWWVPG5LCKCQ",
-      policy: "eyJleHBpcmF0aW9uIjoiMjAxOS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbeyJidWNrZXQiOiJuZXdibG9ja2NpdHlfZGV2X3VwbG9hZHMifSx7ImFjbCI6InB1YmxpYy1yZWFkIn0seyJDb250ZW50LVR5cGUiOiJ2aWRlby9xdWlja3RpbWUifSxbInN0YXJ0cy13aXRoIiwiJGtleSIsIm5iYy1waG9uZWdhcCJdLFsiY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwXV19",
-      signature: "hZ9vxI1SogIN8vsI+ZaecvKebtk="
     };
 
     return NBC;
@@ -126,15 +126,7 @@
       return _ref;
     }
 
-    Block.create = function(path) {
-      var block;
-
-      block = new NBC.Block();
-      block._setCurrentPosition();
-      block._setCurrentTime();
-      block._setCurrentDirection();
-      return block;
-    };
+    Block.prototype.urlRoot = "http://localhost:3000/client/blocks";
 
     Block.prototype.initialize = function() {
       var _this = this;
@@ -142,6 +134,10 @@
       this._positionDfd = $.Deferred();
       this._directionDfd = $.Deferred();
       this._videoDfd = $.Deferred();
+      this._setCurrentPosition();
+      this._setCurrentTime();
+      this._setCurrentDirection();
+      this._setDestinationPath();
       $.when(this._positionDfd, this._directionDfd, this._videoDfd).then(function() {
         return NBC.events.trigger("block:ready", _this);
       });
@@ -149,7 +145,7 @@
     };
 
     Block.prototype.toString = function() {
-      return "block\nposition: " + (this.get('latitude')) + ", " + (this.get('longitude')) + "\ntime: " + (this.get('time')) + "\ndirection: " + (this.get('direction')) + "\npath: " + (this.get('path')) + "\nuploadTime: " + (this.get('uploadTime')) + "\nuploadUri: " + (this.get('uploadUri')) + "\nuploadFileName: " + (this.get('uploadFileName'));
+      return "block\nposition: " + (this.get('latitude')) + ", " + (this.get('longitude')) + "\ntime: " + (this.get('time')) + "\ndirection: " + (this.get('direction')) + "\npath: " + (this.get('path')) + "\ndestinationPath: " + (this.get('destinationPath'));
     };
 
     Block.prototype.recordVideo = function() {
@@ -189,7 +185,7 @@
       return navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
     };
 
-    Block.prototype._setCurrentPosition = function(geopositions) {
+    Block.prototype._setCurrentPosition = function() {
       var _this = this;
 
       if (navigator.geolocation) {
@@ -222,6 +218,14 @@
         this.set('direction', 'unavailable');
         return this._directionDfd.resolve();
       }
+    };
+
+    Block.prototype._setDestinationPath = function() {
+      var destinationFileName, timeValue;
+
+      timeValue = this.get('time').getTime();
+      destinationFileName = "nbc-phonegap-client-" + timeValue + ".mov";
+      return this.set('destinationPath', destinationFileName);
     };
 
     Block.prototype._handleError = function() {
@@ -354,7 +358,7 @@
     BlockView.prototype.recordVideo = function() {
       var block;
 
-      block = NBC.Block.create();
+      block = new NBC.Block();
       return block.recordVideo();
     };
 
@@ -435,11 +439,45 @@
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+  NBC.Uploader.Block = (function() {
+    function Block(block) {
+      this._handleError = __bind(this._handleError, this);
+      this._handleSuccess = __bind(this._handleSuccess, this);      this.block = block;
+      if (!block) {
+        console.warn("Block is EMPTY");
+      }
+    }
+
+    Block.prototype.upload = function() {
+      return this.block.save({
+        success: this._handleSuccess,
+        error: this._handleError
+      });
+    };
+
+    Block.prototype._handleSuccess = function() {
+      return console.log("Saved Block\n" + (this.block.toString()));
+    };
+
+    Block.prototype._handleError = function() {
+      return console.error("Failed to save Block\n" + (this.block.toString()));
+    };
+
+    return Block;
+
+  })();
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
   NBC.Uploader.Video = (function() {
     function Video(block) {
       this._uploadFail = __bind(this._uploadFail, this);
       this._uploadSuccess = __bind(this._uploadSuccess, this);
-      this.upload = __bind(this.upload, this);      this.block = block;
+      this.upload = __bind(this.upload, this);
+      this.destinationUri = __bind(this.destinationUri, this);      this.block = block;
       if (block) {
         this.path = block.get('path');
       }
@@ -453,23 +491,23 @@
       return this.dfd.promise();
     };
 
-    Video.prototype.uri = encodeURI("https://newblockcity_dev_uploads.s3.amazonaws.com/");
+    Video.prototype.baseUri = encodeURI("https://newblockcity_dev_uploads.s3.amazonaws.com/");
+
+    Video.prototype.destinationUri = function() {
+      return "" + this.baseUri + (this.block.get('destinationPath'));
+    };
 
     Video.prototype.upload = function() {
       var ft, options;
 
-      this.time = new Date().getTime();
-      this.destinationFileName = "nbc-phonegap-client-" + this.time + ".mov";
-      this.destinationUri = ("" + this.uri + "nbc-phonegap-client-") + this.time + ".mov";
-      this._updateBlock();
       options = this._generateOptions();
       ft = new FileTransfer();
-      return ft.upload(this.path, this.uri, this._uploadSuccess, this._uploadFail, options);
+      return ft.upload(this.block.get('destinationPath'), this.baseUri, this._uploadSuccess, this._uploadFail, options);
     };
 
     Video.prototype._uploadSuccess = function(fileUploadResult) {
       this.result = fileUploadResult;
-      console.log("upload success for " + this.destinationFileName + "\nresponse:\n" + this.result.response);
+      console.log("upload success for " + (this.destinationUri()) + "\nresponse:\n" + this.result.response);
       return this.dfd.resolve(this.result);
     };
 
@@ -484,12 +522,12 @@
 
       options = new FileUploadOptions();
       options.fileKey = "file";
-      options.fileName = this.destinationFileName;
+      options.fileName = this.block.get('destinationPath');
       options.mimeType = "video/quicktime";
       options.chunkedMode = true;
       access = new NBC.AwsAccess();
       options.params = {
-        "key": this.destinationFileName,
+        "key": this.block.get('destinationPath'),
         "AWSAccessKeyId": access.awsAccessKeyId,
         "acl": "public-read",
         "policy": access.base64Policy,
@@ -497,12 +535,6 @@
         "Content-Type": "video/quicktime"
       };
       return options;
-    };
-
-    Video.prototype._updateBlock = function() {
-      this.block.set('uploadTime', this.time);
-      this.block.set('uploadUri', this.destinationUri);
-      return this.block.set('uploadFileName', this.destinationFileName);
     };
 
     return Video;

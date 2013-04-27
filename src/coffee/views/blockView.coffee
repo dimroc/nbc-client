@@ -8,5 +8,5 @@ class NBC.BlockView extends Backbone.View
     @
 
   recordVideo: ->
-    block = NBC.Block.create()
+    block = new NBC.Block()
     block.recordVideo()
