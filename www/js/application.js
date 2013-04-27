@@ -1,4 +1,15 @@
 (function() {
+  console.log("Initializing Ajax Headers");
+
+  $.ajaxSetup({
+    headers: {
+      NBC_SIGNATURE: "yicceHasFatcowJemIvRurwojidfaitt"
+    }
+  });
+
+}).call(this);
+
+(function() {
   var singleton;
 
   singleton = null;
