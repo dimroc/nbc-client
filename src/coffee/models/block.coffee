@@ -24,6 +24,7 @@ class NBC.Block extends Backbone.Model
     direction: #{@get('direction')}
     path: #{@get('path')}
     destinationPath: #{@get('destinationPath')}
+    destinationUri: #{@get('destinationUri')}
     """
 
   recordVideo: ->

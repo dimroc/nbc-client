@@ -145,7 +145,7 @@
     };
 
     Block.prototype.toString = function() {
-      return "block\nposition: " + (this.get('latitude')) + ", " + (this.get('longitude')) + "\ntime: " + (this.get('time')) + "\ndirection: " + (this.get('direction')) + "\npath: " + (this.get('path')) + "\ndestinationPath: " + (this.get('destinationPath'));
+      return "block\nposition: " + (this.get('latitude')) + ", " + (this.get('longitude')) + "\ntime: " + (this.get('time')) + "\ndirection: " + (this.get('direction')) + "\npath: " + (this.get('path')) + "\ndestinationPath: " + (this.get('destinationPath')) + "\ndestinationUri: " + (this.get('destinationUri'));
     };
 
     Block.prototype.recordVideo = function() {
@@ -491,7 +491,7 @@
       return this.dfd.promise();
     };
 
-    Video.prototype.baseUri = encodeURI("https://newblockcity_dev_uploads.s3.amazonaws.com/");
+    Video.prototype.baseUri = encodeURI("http://s3.amazonaws.com/newblockcity_dev_uploads/");
 
     Video.prototype.destinationUri = function() {
       return "" + this.baseUri + (this.block.get('destinationPath'));
@@ -502,7 +502,8 @@
 
       options = this._generateOptions();
       ft = new FileTransfer();
-      return ft.upload(this.block.get('destinationPath'), this.baseUri, this._uploadSuccess, this._uploadFail, options);
+      ft.upload(this.block.get('destinationPath'), this.baseUri, this._uploadSuccess, this._uploadFail, options);
+      return this.promise();
     };
 
     Video.prototype._uploadSuccess = function(fileUploadResult) {

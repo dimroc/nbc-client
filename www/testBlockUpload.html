@@ -27,6 +27,9 @@
       console.log("testing BLOCK upload!");
 
       var testBlock = new NBC.Block();
+
+      // Setting destination path to movie file that already exists
+      testBlock.set('destinationPath', 'nbc-phonegap-client-1367068000181.mov');
       var uploader = new NBC.Uploader.Video(testBlock);
       testBlock.set('destinationUri', uploader.destinationUri());
     </script>

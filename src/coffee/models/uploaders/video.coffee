@@ -8,7 +8,7 @@ class NBC.Uploader.Video
   promise: ->
     @dfd.promise()
 
-  baseUri: encodeURI("https://newblockcity_dev_uploads.s3.amazonaws.com/")
+  baseUri: encodeURI("http://s3.amazonaws.com/newblockcity_dev_uploads/")
 
   destinationUri: => "#{@baseUri}#{@block.get('destinationPath')}"
 
@@ -26,6 +26,8 @@ class NBC.Uploader.Video
       @_uploadSuccess,
       @_uploadFail,
       options)
+
+    @promise()
 
   _uploadSuccess: (fileUploadResult) =>
     @result = fileUploadResult
