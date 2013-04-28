@@ -126,7 +126,7 @@
       return _ref;
     }
 
-    Block.prototype.urlRoot = "http://localhost:3000/client/blocks";
+    Block.prototype.urlRoot = "http://newblockcity.com:3000/client/blocks";
 
     Block.prototype.initialize = function() {
       var _this = this;
@@ -259,7 +259,8 @@
 
     function Uploader(block) {
       this._handleFailure = __bind(this._handleFailure, this);
-      this._handleSuccess = __bind(this._handleSuccess, this);      this.block = block;
+      this._handleSuccess = __bind(this._handleSuccess, this);
+      this.upload = __bind(this.upload, this);      this.block = block;
       this.dfd = $.Deferred();
     }
 
@@ -268,10 +269,16 @@
     };
 
     Uploader.prototype.upload = function() {
-      var videoUploader;
+      var blockUploader, videoUploader;
 
+      console.log("CREATING UPLOADERS");
       videoUploader = new Uploader.Video(this.block);
-      $.when(videoUploader.promise()).then(this._handleSuccess, this._handleFailure);
+      blockUploader = new Uploader.Block(this.block);
+      console.log("PROMISING UPLOADERS:VIDEO");
+      videoUploader.promise().then(blockUploader.upload, this._handleFailure);
+      console.log("PROMISING UPLOADERS:BLOCK");
+      blockUploader.promise().then(this._handleSuccess, this._handleFailure);
+      console.log("STARTING UPLOADERS");
       videoUploader.upload();
       return this.promise();
     };
@@ -399,21 +406,21 @@
       });
       $.mobile.changePage("templates/uploadPage.html");
       this.setResult("");
-      return $(".spinner").hide();
+      return this._hideSpinner();
     };
 
     UploadView.prototype.startUpload = function() {
       var uploadPromise;
 
       uploadPromise = this.model.upload();
-      $(".spinner").show();
+      this._showSpinner();
       return $.when(uploadPromise).then(this._handleSuccess, this._handleFailure);
     };
 
     UploadView.prototype._handleSuccess = function() {
       console.log("SUCCESSFULLY UPLOADED ALL DATA");
       this.setResult("SUCCESS");
-      $(".spinner").hide();
+      this._hideSpinner();
       return $("a[href=#shell]").click();
     };
 
@@ -422,12 +429,25 @@
 
       console.warn("FAILED TO UPLOAD", arguments);
       argumentString = arguments.join(",");
-      $(".spinner").hide();
-      return this.setResult("FAILURE: " + argumentString);
+      this._hideSpinner();
+      this.setResult("FAILURE: " + argumentString);
+      return $("a[href=#shell]").click();
     };
 
     UploadView.prototype.setResult = function(result) {
       return $(".result").text(result);
+    };
+
+    UploadView.prototype._showSpinner = function() {
+      $(".spinner").show();
+      $("button").prop('disabled', true);
+      return $("[data-role=button]").hide();
+    };
+
+    UploadView.prototype._hideSpinner = function() {
+      $(".spinner").hide();
+      $("button").prop('disabled', false);
+      return $("[data-role=button]").show();
     };
 
     return UploadView;
@@ -442,25 +462,36 @@
   NBC.Uploader.Block = (function() {
     function Block(block) {
       this._handleError = __bind(this._handleError, this);
-      this._handleSuccess = __bind(this._handleSuccess, this);      this.block = block;
+      this._handleSuccess = __bind(this._handleSuccess, this);
+      this.upload = __bind(this.upload, this);
+      this.promise = __bind(this.promise, this);      this.block = block;
+      this.dfd = $.Deferred();
       if (!block) {
         console.warn("Block is EMPTY");
       }
     }
 
+    Block.prototype.promise = function() {
+      return this.dfd.promise();
+    };
+
     Block.prototype.upload = function() {
-      return this.block.save({
+      console.log("SAVING BLOCK\n" + (this.block.toString()));
+      this.block.save(null, {
         success: this._handleSuccess,
         error: this._handleError
       });
+      return this.dfd.promise();
     };
 
     Block.prototype._handleSuccess = function() {
-      return console.log("Saved Block\n" + (this.block.toString()));
+      console.log("SAVED Block\n" + (this.block.toString()));
+      return this.dfd.resolve();
     };
 
     Block.prototype._handleError = function() {
-      return console.error("Failed to save Block\n" + (this.block.toString()));
+      console.error("Failed to save Block\n" + (this.block.toString()));
+      return this.dfd.reject();
     };
 
     return Block;
@@ -501,8 +532,9 @@
       var ft, options;
 
       options = this._generateOptions();
+      console.log("FINISHED GENERATING OPTIONS");
       ft = new FileTransfer();
-      ft.upload(this.block.get('destinationPath'), this.baseUri, this._uploadSuccess, this._uploadFail, options);
+      ft.upload(this.block.get('path'), this.baseUri, this._uploadSuccess, this._uploadFail, options);
       return this.promise();
     };
 

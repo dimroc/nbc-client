@@ -18,10 +18,11 @@ class NBC.Uploader.Video
   upload: =>
     # Phonegap specific libraries. Does not function on web.
     options = @_generateOptions()
+    console.log("FINISHED GENERATING OPTIONS")
 
     ft = new FileTransfer()
     ft.upload(
-      @block.get('destinationPath'),
+      @block.get('path'),
       @baseUri,
       @_uploadSuccess,
       @_uploadFail,

@@ -1,16 +1,21 @@
 class NBC.Uploader.Block
   constructor: (block) ->
     @block = block
+    @dfd = $.Deferred()
     console.warn "Block is EMPTY" unless block
 
-  upload: ->
-    @block.save(
-      success: @_handleSuccess,
-      error: @_handleError
-    )
+  promise: =>
+    @dfd.promise()
+
+  upload: =>
+    console.log("SAVING BLOCK\n#{@block.toString()}")
+    @block.save(null, {success: @_handleSuccess, error: @_handleError})
+    @dfd.promise()
 
   _handleSuccess: =>
-    console.log("Saved Block\n#{@block.toString()}")
+    console.log("SAVED Block\n#{@block.toString()}")
+    @dfd.resolve()
 
   _handleError: =>
     console.error("Failed to save Block\n#{@block.toString()}")
+    @dfd.reject()

@@ -1,5 +1,6 @@
 class NBC.Block extends Backbone.Model
-  urlRoot: "http://localhost:3000/client/blocks"
+  #urlRoot: "http://localhost:3000/client/blocks"
+  urlRoot: "http://newblockcity.com:3000/client/blocks"
 
   initialize: ->
     @_positionDfd = $.Deferred()

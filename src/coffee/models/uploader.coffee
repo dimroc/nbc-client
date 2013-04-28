@@ -6,17 +6,17 @@ class NBC.Uploader extends Backbone.Events
   promise: ->
     @dfd.promise()
 
-  upload: ->
+  upload: =>
+    console.log ("CREATING UPLOADERS")
     videoUploader = new Uploader.Video(@block)
-    #blockUploader = new Uploader.Block(@block)
+    blockUploader = new Uploader.Block(@block)
 
-    #videoUploader.promise().then(blockUploader.upload)
-    #blockUploader.promise().then(handlesuccess)
+    console.log("PROMISING UPLOADERS:VIDEO")
+    videoUploader.promise().then(blockUploader.upload, @_handleFailure)
+    console.log("PROMISING UPLOADERS:BLOCK")
+    blockUploader.promise().then(@_handleSuccess, @_handleFailure)
 
-    $.when(videoUploader.promise()).then(
-      @_handleSuccess,
-      @_handleFailure)
-
+    console.log("STARTING UPLOADERS")
     videoUploader.upload()
     @promise()
 
